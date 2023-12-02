@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-
 const RADIX: u32 = 10;
 
 fn extract_numbers(line: &str) -> (i32, i32) {
