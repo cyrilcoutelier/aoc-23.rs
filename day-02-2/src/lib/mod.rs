@@ -64,11 +64,8 @@ impl Round {
         self.nb_cubes[color as usize] = nb_cubes;
     }
 
-    fn can_fit_into(&self, other: &Self) -> bool {
-        self.nb_cubes
-            .iter()
-            .enumerate()
-            .all(|(idx, left_value)| *left_value <= other.nb_cubes[idx])
+    fn get_power(&self) -> usize {
+        self.nb_cubes.iter().product()
     }
 }
 
@@ -108,24 +105,13 @@ pub fn parse_line(line: &str) -> Game {
     }
 }
 
-fn create_requirement() -> Round {
-    let mut round = Round::new();
-    round.add_cubes_of_color(Color::Red, 12);
-    round.add_cubes_of_color(Color::Green, 13);
-    round.add_cubes_of_color(Color::Blue, 14);
-    round
-}
-
 pub fn process_lines<T>(lines: T) -> i32
 where
     T: Iterator<Item = String>,
 {
     let games = lines.map(|line| parse_line(&line));
-    let requirement = create_requirement();
-    let games = games.filter(|game| {
-        let max_cubes = game.get_max_cubes();
-        max_cubes.can_fit_into(&requirement)
-    });
-    let result: usize = games.map(|game| game.id).sum();
+    let games_max_cubes = games.map(|game| game.get_max_cubes());
+    let games_powers = games_max_cubes.map(|round| round.get_power());
+    let result: usize = games_powers.sum();
     result as i32
 }

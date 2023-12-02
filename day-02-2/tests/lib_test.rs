@@ -38,6 +38,6 @@ mod process_lines {
         let result = process_lines(input.into_iter());
 
         // Then
-        assert_eq!(result, 8);
+        assert_eq!(result, 2286);
     }
 }
