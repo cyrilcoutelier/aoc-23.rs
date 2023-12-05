@@ -1,10 +1,10 @@
 mod parse_line {
-    use aoc2023::{parse_line, LineData, LineSymbols, PartNumber};
+    use aoc2023::{parse_line, LineData, LineStars, PartNumber};
 
     #[test]
     fn two_numbers() {
         // When
-        let line = "..123..234..";
+        let line = "..123#.234..";
 
         // When
         let result = parse_line(line);
@@ -25,7 +25,7 @@ mod parse_line {
                         end: 9
                     },
                 ],
-                line_symbols: LineSymbols::new()
+                line_stars: LineStars::new()
             }
         );
     }
@@ -33,15 +33,12 @@ mod parse_line {
     #[test]
     fn two_number_and_symbol() {
         // When
-        let line = ".12#34.";
+        let line = ".12*34.";
 
         // When
         let result = parse_line(line);
 
         // Then
-        let mut line_symbols = LineSymbols::new();
-        line_symbols.insert(3);
-
         assert_eq!(
             result,
             LineData {
@@ -57,7 +54,7 @@ mod parse_line {
                         end: 5,
                     },
                 ],
-                line_symbols,
+                line_stars: vec![3]
             }
         );
     }
@@ -86,7 +83,7 @@ mod parse_line {
                         end: 5,
                     },
                 ],
-                line_symbols: LineSymbols::new()
+                line_stars: Vec::new(),
             }
         );
     }
@@ -116,6 +113,6 @@ mod process_lines {
         let result = process_lines(input.into_iter());
 
         // Then
-        assert_eq!(result, 4361);
+        assert_eq!(result, 467835);
     }
 }
