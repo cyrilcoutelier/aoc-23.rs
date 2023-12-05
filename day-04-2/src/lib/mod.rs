@@ -1,24 +1,22 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 
 struct Card {
-    winning_numbers: HashSet<i32>,
-    our_numbers: Vec<i32>,
+    index: usize,
+    nb_matches: usize,
 }
 
 impl Card {
-    fn get_nb_matching(&self) -> usize {
-        self.our_numbers
-            .iter()
-            .filter(|our_number| self.winning_numbers.contains(our_number))
-            .count()
+    fn new(index: usize, winning_numbers: &HashSet<i32>, our_numbers: &[i32]) -> Self {
+        let nb_matches = get_nb_matching(winning_numbers, our_numbers);
+        Card { index, nb_matches }
     }
 }
 
-fn nb_matching_to_score(nb_matching: usize) -> i32 {
-    match nb_matching {
-        0 => 0,
-        _ => 2_i32.pow((nb_matching - 1) as u32),
-    }
+fn get_nb_matching(winning_numbers: &HashSet<i32>, our_numbers: &[i32]) -> usize {
+    our_numbers
+        .iter()
+        .filter(|our_number| winning_numbers.contains(our_number))
+        .count()
 }
 
 fn parse_winning_numbers(winning_numbers: &str) -> HashSet<i32> {
@@ -38,7 +36,7 @@ fn parse_our_numbers(our_numbers: &str) -> Vec<i32> {
         .map(|our_number| our_number.parse::<i32>().unwrap())
         .collect()
 }
-fn parse_line(line: &str) -> Card {
+fn parse_line(index: usize, line: &str) -> Card {
     let numbers = line.split(':').last().unwrap();
     let mut numbers = numbers.split('|');
 
@@ -48,19 +46,27 @@ fn parse_line(line: &str) -> Card {
     let our_numbers = numbers.next().unwrap();
     let our_numbers = parse_our_numbers(our_numbers);
 
-    Card {
-        winning_numbers,
-        our_numbers,
-    }
+    Card::new(index, &winning_numbers, &our_numbers)
 }
 
 pub fn process_lines<T>(lines: T) -> i32
 where
     T: Iterator<Item = String>,
 {
-    lines
-        .map(|line| parse_line(&line))
-        .map(|card| card.get_nb_matching())
-        .map(nb_matching_to_score)
-        .sum()
+    let original_cards: Vec<Card> = lines
+        .enumerate()
+        .map(|(index, line)| parse_line(index, &line))
+        .collect();
+
+    let mut nb_cards = 0;
+    let mut queue: VecDeque<_> = original_cards.iter().map(|card| card.index).collect();
+    while let Some(index) = queue.pop_front() {
+        nb_cards += 1;
+        if let Some(card) = original_cards.get(index) {
+            (card.index + 1..card.index + 1 + card.nb_matches)
+                .for_each(|copy_index| queue.push_back(copy_index));
+        }
+    }
+
+    nb_cards
 }
